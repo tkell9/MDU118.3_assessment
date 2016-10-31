@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "GameManager.h"
+#include "Enemy.h"
+#include <fStream>
 
 GameManager& GameManager::Instance()
 {
@@ -16,18 +18,59 @@ GameManager::~GameManager()
 {
 }
 
-const char* Image1 = "Image1";
+const char* Arrowtrap = "Arrowtrap";
+const char* Blackhole = "Blackhole";
+const char* Boost = "Boost";
+const char* Health = "Health";
+const char* Key = "Key";
+const char* Spike = "Spike";
+const char* Player = "Player";
 
 void GameManager::BeginPlay()
 {
-	////////////////////////////////////////////////////////////////////////////////
-	// Begin example code
+	
+	// Load in the images from the Images folder. Give them unique names to reference later.
+		
+	GameFrameworkInstance.LoadImageResource(AppConfigInstance.GetResourcePath("Images/Arrowtrap.png"), Arrowtrap);
+	
+	
+	GameFrameworkInstance.LoadImageResource(AppConfigInstance.GetResourcePath("Images/Blackhole.png"), Blackhole);
+	
+	
+	GameFrameworkInstance.LoadImageResource(AppConfigInstance.GetResourcePath("Images/Boost.png"), Boost);
+	
+	
+	GameFrameworkInstance.LoadImageResource(AppConfigInstance.GetResourcePath("Images/Health.png"), Health);
 
-	// Load the image file Untitled.png from the Images folder. Give it the unique name of Image1
-	GameFrameworkInstance.LoadImageResource(AppConfigInstance.GetResourcePath("Images/Untitled.png"), Image1);
+	
+	GameFrameworkInstance.LoadImageResource(AppConfigInstance.GetResourcePath("Images/Key.png"), Key);
 
-	// End example code
-	////////////////////////////////////////////////////////////////////////////////
+	
+	GameFrameworkInstance.LoadImageResource(AppConfigInstance.GetResourcePath("Images/Spike.png"), Spike);
+
+
+	GameFrameworkInstance.LoadImageResource(AppConfigInstance.GetResourcePath("Images/Player.png"), Player);
+
+	Enemy* object1 = new Enemy();
+	object1->location = Vector2i(100, 100);
+	object1->name = "Object1";
+	object1->rotation = 1.0f;
+	object1->xScale = 2.0f;
+	object1->yScale = 3.0f;
+	object1->imageName = "Image1";
+	object1->health = 100;
+
+	std::ofstream outputFile("objects.csv");
+	object1->SaveAsText(outputFile);
+	outputFile.close();
+
+	std::ifstream inputFile("objects.csv");
+	Enemy object2;
+	object2.LoadFromText(inputFile);
+
+	delete object1;
+
+
 }
 
 void GameManager::EndPlay()
@@ -40,6 +83,7 @@ void GameManager::Update(double deltaTime)
 
 }
 
+//Loads the images 
 void GameManager::Render(Gdiplus::Graphics& canvas, const CRect& clientRect)
 {
 	////////////////////////////////////////////////////////////////////////////////
@@ -50,25 +94,32 @@ void GameManager::Render(Gdiplus::Graphics& canvas, const CRect& clientRect)
 	canvas.GetTransform(&transform);
 
 	canvas.ScaleTransform(0.5f, 0.5f);
-	canvas.RotateTransform(30.0f);
+	canvas.RotateTransform(0.0f);
 	canvas.TranslateTransform(200.0f, 200.0f);
 
-	// Render method demonstration (You can remove all of this code)
-	GameFrameworkInstance.DrawLine(canvas, Vector2i(200, 200), Vector2i(400, 200), Gdiplus::Color::White);
+	// Load the image files, give them a random location 
 
-	GameFrameworkInstance.DrawRectangle(canvas, AABBi(Vector2i(10, 110), Vector2i(100, 200)), false, Gdiplus::Color::White);
-	GameFrameworkInstance.DrawRectangle(canvas, AABBi(Vector2i(200, 110), Vector2i(300, 200)), true, Gdiplus::Color::White);
+	ImageWrapper* arrowtrap = GameFrameworkInstance.GetLoadedImage(Arrowtrap);
+	GameFrameworkInstance.DrawImage(canvas, Vector2i(800, 100), arrowtrap);
 
-	canvas.SetTransform(&transform);
+	ImageWrapper* blackhole = GameFrameworkInstance.GetLoadedImage(Blackhole);
+	GameFrameworkInstance.DrawImage(canvas, Vector2i(500, 300), blackhole);
 
-	GameFrameworkInstance.DrawCircle(canvas, Vector2i(200, 200), 50, false, Gdiplus::Color::White);
-	GameFrameworkInstance.DrawCircle(canvas, Vector2i(400, 200), 50, true, Gdiplus::Color::White);
+	ImageWrapper* boost = GameFrameworkInstance.GetLoadedImage(Boost);
+	GameFrameworkInstance.DrawImage(canvas, Vector2i(150, 550), boost);
 
-	GameFrameworkInstance.DrawText(canvas, Vector2i(10, 300), 12, "Arial", "Hello World!", Gdiplus::Color::White);
+	ImageWrapper* health = GameFrameworkInstance.GetLoadedImage(Health);
+	GameFrameworkInstance.DrawImage(canvas, Vector2i(1000, 500), health);
 
-	// Load the image file Untitled.png from the Images folder. Give it the unique name of Image1
-	ImageWrapper* image1 = GameFrameworkInstance.GetLoadedImage(Image1);
-	GameFrameworkInstance.DrawImage(canvas, Vector2i(400, 400), image1);
+	ImageWrapper* key = GameFrameworkInstance.GetLoadedImage(Key);
+	GameFrameworkInstance.DrawImage(canvas, Vector2i(350, 400), key);
+
+	ImageWrapper* spike = GameFrameworkInstance.GetLoadedImage(Spike);
+	GameFrameworkInstance.DrawImage(canvas, Vector2i(700, 550), spike);
+
+	ImageWrapper* player = GameFrameworkInstance.GetLoadedImage(Player);
+	GameFrameworkInstance.DrawImage(canvas, Vector2i(50, 550), player);
+
 
 	// Restore the transformation of the scene
 	canvas.SetTransform(&transform);
